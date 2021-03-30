@@ -15,3 +15,5 @@
 
 This is my first ever Express + Typescript app. And i think i miss the intended result for point 4 of the test. However
 i hope for the best.
+
+I also assuming to create auth endpoints first but it didn't metioned in the stories so i just skip it.
