@@ -4,6 +4,7 @@ import express, { ErrorRequestHandler } from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
 import { Sequelize } from 'sequelize-typescript';
+import { AggregateError } from 'sequelize';
 
 const app = express();
 const server = createServer(app);
@@ -26,9 +27,8 @@ import { UserJob } from './models/UserJob';
 app.get('/api', (req, res) => res.send('Health Check'));
 
 app.post('/api/jobs', async (req, res, next) => {
-  const { name, dayOfWeek, start, end } = req.body;
   try {
-    await Job.create({ name, dayOfWeek, start, end });
+    await Job.bulkCreate(req.body, { validate: true, fields: ['name', 'dayOfWeek', 'start', 'end'] });
     return res.status(204).json();
   } catch (error) {
     next(error);
@@ -73,6 +73,9 @@ app.get('/api/jobs/common', async (req, res, next) => {
 });
 
 const errorHandler: ErrorRequestHandler = (error, _req, res, next) => {
+  if (error instanceof AggregateError) {
+    return res.status(422).json({ error: error.errors[0].message });
+  }
   return res.status(500).json({ error: error.message });
 };
 
