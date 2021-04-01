@@ -57,16 +57,21 @@ app.post('/api/jobs/unassign', async (req, res, next) => {
 
 app.get('/api/jobs/common', async (req, res, next) => {
   try {
-    const jobs = await Job.findAll({
-      order: ['dayOfWeek'],
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] },
       include: [
         {
-          model: User,
-          attributes: { exclude: ['password'] }
+          model: Job,
+          through: {
+            attributes: [],
+          },
         }
       ],
+      order: [
+        [{ model: Job, as: 'jobs' }, 'dayOfWeek', 'asc']
+      ],
     });
-    return res.status(200).json(jobs);
+    return res.status(200).json(users);
   } catch (error) {
     next(error);
   }
